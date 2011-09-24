@@ -1,2 +1,53 @@
-h1= title
-p Welcome to #{title}
+script
+      // socket.io specific code
+      var socket = io.connect();
+
+      socket.on('connect', function () {
+        $('#status#test').html('connected');
+      });
+
+      socket.on('played', play);
+      socket.on('reconnect', function () {
+        $('#lines').remove();
+        message('System', 'Reconnected to the server');
+      });
+
+      socket.on('reconnecting', function () {
+        message('System', 'Attempting to re-connect to the server');
+      });
+
+      socket.on('error', function (e) {
+        message('System', e ? e : 'A unknown error occurred');
+      });
+
+      function message (msg) {
+        $('#status #test').append($('<p>'), "--"+msg);
+      }
+      
+      function play(msg) {
+        $('#status #test').append($('<p>'), "you just played "+msg);
+      }
+      
+      
+      $(function () { 
+          $(".string").click(function(){
+              socket.emit('played', $(this).val(), function (done) {
+                 if(done) 
+                  return true; //all good
+                 else 
+                  message("error"); 
+              });
+          });
+      });
+
+#content
+  button.string(value='e') e
+  button.string(value='A') A
+  button.string(value='D') D
+  button.string(value='G') G
+  button.string(value='B') B
+  button.string(value='D') D
+  button.string(value='E') E
+  #status
+   #test
+    

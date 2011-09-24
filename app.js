@@ -3,7 +3,8 @@
  * Module dependencies.
  */
 
-var express = require('express');
+var express = require('express') 
+  , sio     = require('socket.io');
 
 var app = module.exports = express.createServer();
 
@@ -35,4 +36,20 @@ app.get('/', function(req, res){
 });
 
 app.listen(3000);
+
+var io = sio.listen(app);
+io.sockets.on('connection', function (socket) {
+  socket.on('played', function (msg , fn) {
+    fn(true);
+    socket.emit('played', msg);
+  });
+
+  socket.on('disconnect', function () {
+   
+  });
+});
+
+
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+
+

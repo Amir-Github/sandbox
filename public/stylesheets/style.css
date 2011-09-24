@@ -1,6 +1,50 @@
 body {
-  padding: 50px;
+  padding: 0px;
+  margin:0px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+#body{
+   background: url('/images/cotton.jpg') repeat;
+   width: 90%;
+   margin:auto auto;
+   margin-top:20px;
+   border-radius: 7px;
+   border: 1px solid #EFEFEF;
+   box-shadow: 7px 7px 5px #AAA; 
+}
+
+.page_header{
+  font-size: 1.4em;
+}
+
+.page_footer{
+   font-size: 1.4em;
+}
+
+#content{
+   height: 300px;
+   padding: 20px;
+   overflow:auto;
+}
+
+.white_container{
+   padding:15px 5px;
+   background-color:white;
+   background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#DEDEDE), to(#FFFFFF));
+   background: -webkit-linear-gradient(top, #FFFFFF, #DEDEDE);
+   background: -moz-linear-gradient(top, #FFFFFF, #DEDEDE);
+   background: -ms-linear-gradient(top, #FFFFFF, #DEDEDE);
+}
+
+.page_footer .white_container{
+  border-top: 1px solid #bcbcbc;
+  border-radius: 0px 0px 7px 7px;
+}
+
+.page_header .white_container{
+  border-bottom: 1px solid #bcbcbc;
+  border-radius: 7px 7px 0px 0px;
 }
 
 a {
