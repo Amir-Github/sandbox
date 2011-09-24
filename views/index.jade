@@ -1,6 +1,7 @@
 script
       // socket.io specific code
-      var socket = io.connect();
+      var socket = new io.Socket('localhost',{port:3000});
+      socket.connect({port : 3000});
 
       socket.on('connect', function () {
         $('#status#test').html('connected');
