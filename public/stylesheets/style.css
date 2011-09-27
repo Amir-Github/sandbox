@@ -23,9 +23,24 @@ body {
 }
 
 #content{
-   height: 300px;
-   padding: 20px;
+   height: 390px;
+   padding: 10px;
    overflow:auto;
+}
+
+#content #left{
+  float:left;
+  width:710px;
+}
+
+
+#content #right{
+ float: right;
+ width:40%;
+}
+
+#login_content , #reciever{
+  padding: 20px 10px;
 }
 
 .white_container{
@@ -35,6 +50,7 @@ body {
    background: -webkit-linear-gradient(top, #FFFFFF, #DEDEDE);
    background: -moz-linear-gradient(top, #FFFFFF, #DEDEDE);
    background: -ms-linear-gradient(top, #FFFFFF, #DEDEDE);
+   text-shadow: -3px -5px 0px #efefef;
 }
 
 .page_footer .white_container{
@@ -47,6 +63,66 @@ body {
   border-radius: 7px 7px 0px 0px;
 }
 
-a {
-  color: #00B7FF;
+#chatbox{
+    height: 60px;
+    width: 690px;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px 4px 4px 4px;
+    box-shadow: 0 1px #FFFFFF;
+    color: #222222;
+    font: 14px/18px "Helvetica Neue",Arial,sans-serif;
+    outline: medium none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 8px;
+    margin-top:5px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    resize: none;
+}
+#chatbox:focus{
+ border-color: lightblue;
+ box-shadow:  0px 0px 7px lightblue;
+}
+
+.button{
+  background-color: #4D90FE;
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#4787ED), to(#4D90FE));
+  background: -webkit-linear-gradient(top, #4D90FE, #4787ED);
+  background: -moz-linear-gradient(top, #4D90FE, #4787ED);
+  background: -ms-linear-gradient(top, #4D90FE, #4787ED);
+  border: 1px solid #3079ED;
+  border-radius: 3px;
+  width: 100%;
+  height: 120px;
+  margin-bottom: 8px;
+}
+
+.button:hover{
+  border-color: white;
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#4787ED), to(#4D90FE));
+  background: -webkit-linear-gradient(top, #4D90FE, #4787ED);
+  background: -moz-linear-gradient(top, #4D90FE, #4787CC);
+  background: -ms-linear-gradient(top, #4D90FE, #4787ED);
+}
+
+.big_button{
+   background: none repeat scroll 0 0 transparent;
+   overflow: hidden;
+   position: relative;
+   width: 100%;
+   background-position: center bottom;
+   border: 0 none;
+   cursor: pointer;
+   height: 100%;
+   margin: 0;
+   vertical-align: top;
+   color: white;
+   font-weight: bold;
+   font-size: 1.5em;
+   font-family:monospace;
+   text-shadow: 0px -1px 0px #454545;
+}
+.big_button:hover{ 
+  text-shadow: none;
 }

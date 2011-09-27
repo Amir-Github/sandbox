@@ -3,8 +3,14 @@ html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/osx.css')
     script(src='http://code.jquery.com/jquery-1.6.1.min.js')
     script(src='/socket.io/socket.io.js')
+    script(src='/javascripts/music.js')
+    script(src='/javascripts/jquery.simplemodal.js')
+    script(src="https://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js")
+    script(src='/javascripts/Audiolet.js')
+    script(src='/javascripts/audiolet_app.js')
   #body  
    include header
    body!=body  

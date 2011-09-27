@@ -1,54 +1,174 @@
 script
+      
+      var chatusic_map = { 65 : 'A4' , 66 : 'B4' , 67 : 'C4' , 68 : 'D4' , 69 : 'E4' , 70 : 'G4' , 
+                           71 : 'A5' , 72 : 'B5' , 73 : 'C5' , 74 : 'D5' , 75 : 'E5' , 76 : 'G5' ,
+                           77 : 'A6' , 78 : 'B6' , 79 : 'C6' , 80 : 'D6' , 81 : 'E6' , 82 : 'G6' ,
+                           83 : 'A7' , 84 : 'B7' , 85 : 'C7' , 86 : 'D7' , 87 : 'E7' , 88 : 'G7' ,
+                           89 : 'A7#' , 90 : 'B7#'
+                         }
+                         
+      var drawing_options = { A : {x_pos : '110' , base_color : 'rgba(%b, 255, %c, %a)'},
+                              B : {x_pos : '190' , base_color : 'rgba(%b, %c, 255, %a)'},
+                              C : {x_pos : '260' , base_color : 'rgba(255, %b, %c, %a)'},
+                              D : {x_pos : '350' , base_color : 'rgba(%b, 170, %c, %a)'},
+                              E : {x_pos : '440' , base_color : 'rgba(%b, %c, 170, %a)'},
+                              G : {x_pos : '550' , base_color : 'rgba(170, %b, %c, %a)'}
+                             };
+                             
+      var current_notes = [];                                           
+      
+      function map_char(char){
+        return chatusic_map[char] ? chatusic_map[char] : 'A3'; 
+      }
+           
       // socket.io specific code
-      var socket = new io.Socket('localhost',{port:3000});
-      socket.connect({port : 3000});
+      var socket = io.connect('localhost' , {port:3000});
 
       socket.on('connect', function () {
-        $('#status#test').html('connected');
+        //////
       });
-
-      socket.on('played', play);
+ 
       socket.on('reconnect', function () {
-        $('#lines').remove();
-        message('System', 'Reconnected to the server');
+        ////////
       });
 
       socket.on('reconnecting', function () {
-        message('System', 'Attempting to re-connect to the server');
+        //////////////
       });
 
       socket.on('error', function (e) {
-        message('System', e ? e : 'A unknown error occurred');
+        alert('System', e ? e : 'A unknown error occurred');
       });
 
-      function message (msg) {
-        $('#status #test').append($('<p>'), "--"+msg);
-      }
-      
-      function play(msg) {
-        $('#status #test').append($('<p>'), "you just played "+msg);
-      }
-      
-      
-      $(function () { 
-          $(".string").click(function(){
-              socket.emit('played', $(this).val(), function (done) {
-                 if(done) 
-                  return true; //all good
-                 else 
-                  message("error"); 
-              });
-          });
+      socket.on('got_msg' , function(msg , sender){
+           if(confirm("You have recieved a message from "+sender+", wanna listen to it!?")){
+             msg = msg.toUpperCase();
+             var chars = [];
+             for(var i=0;i<msg.length;i++){
+               chars.push(msg.charCodeAt(i));
+             }
+             chars.reverse();
+             for(var i=0;i<chars.length;i++){
+              setTimeout(function(){ play(map_char(chars.pop()));},200*i);
+             }
+           }    
       });
+      
+      function play(note) {
+         if(!this.player){
+          this.player = new AudioletAppNote();
+        }  
+        this.player.play(Note.fromLatin(note));  
+        current_notes.push({note: note , counter: 3}); 
+      }
+      
+      
+      $(function () {  
+          
+          $('#chatbox').keydown(function(event){ 
+            play(map_char(event.keyCode));
+          });
+          
+          $("#login").click(function(){
+            socket.emit("login" , $("#nickname").val() , function(result , id) { if(result) $.modal.close();}); 
+          });
+          
+          $("#do_send").click(function(){
+            var reciever = $("#dest_name").val();
+            if(reciever.length > 0)
+              socket.emit("send_msg" , $("#chatbox").val()+"_to_"+reciever , function(result){if(result) $.modal.close(); else alert("no such user!");});
+          });
+          
+          $("#send_msg").click(function(){
+            if($("#chatbox").val().length == 0){
+             alert("No empty message please!");
+             return;
+            } 
+            $("#login_content").hide();
+            $("#reciever").show();
+            $("#osx-modal-content").modal({
+              overlayId: 'osx-overlay',
+              containerId: 'osx-container',
+              closeHTML: null,
+              minHeight: 80,
+              opacity: 65,
+              position: ['0',],
+              overlayClose: true
+            });
+          });
+          
+          $("#reciever").hide();
+          $("#osx-modal-content").modal({
+           overlayId: 'osx-overlay',
+           containerId: 'osx-container',
+           closeHTML: null,
+           minHeight: 80,
+           opacity: 65,
+           position: ['0',],
+           overlayClose: false
+          });
+          
+         setInterval(draw,500); 
+      });
+      
+      function get_options(note){
+         var x_pos = drawing_options[note.charAt(0)]['x_pos'];
+         var y_pos = (parseInt(note.charAt(1)) - 3) * 70;
+         
+        return {x : x_pos , y : y_pos , color : drawing_options[note.charAt(0)]['base_color'] };  
+      }
+      
+      function draw(notes){
+        var ctx = document.getElementById('showbox').getContext('2d');
+        ctx.clearRect(0,0,705,300); // clear canvas  
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';  
+        ctx.fillRect(0, 0, 705, 300); 
+         
+         for(var i=0;i<current_notes.length;i++){  
+           var temp = current_notes[i];
+           if(temp['counter'] > 0){ 
+             var options = get_options(temp['note']);
+             var color = options['color'].replace(/%b/ , parseInt(options['x'])%240).replace(/%c/ , parseInt(options['y'])%220); 
+             for(var j=1;j<4;j++){    
+               ctx.strokeStyle = color.replace(/%a/ , (0.2)*(j*2)*(temp['counter']));
+               ctx.beginPath();
+               ctx.arc(options['x'], options['y'], 15*j, 0, Math.PI*2, true); 
+               ctx.stroke(); 
+             }  
+             temp['counter'] = temp['counter'] -1; 
+           }  
+         }
+         
+          //////////////// clear the buffer
+         for(var i=0;i<current_notes.length;i++){  
+          var temp = current_notes[i];
+          if(temp['counter'] == 0) current_notes.splice(i,1); 
+         }    
+      }
+      
 
 #content
-  button.string(value='e') e
-  button.string(value='A') A
-  button.string(value='D') D
-  button.string(value='G') G
-  button.string(value='B') B
-  button.string(value='D') D
-  button.string(value='E') E
-  #status
-   #test
+ #left
+  canvas#showbox(width='705' , height='300', style="border:thin dashed #DEDEDE")
+  textarea#chatbox
+ #right
+  .button
+    button#send_msg.big_button Send the message
+  .button
+    button#save_msg.big_button Save the message
+  .button
+    button#play_msg.big_button Play an archived message
+    
+
+#osx-modal-content
+ #osx-modal-title Chatusic
+ #login_content
+  input#nickname(type='input')
+  button#login login
+ #reciever
+  input#dest_name(type='input')
+  button#do_send Send   
+
+       
+    
     
