@@ -39,7 +39,7 @@ body {
  width:40%;
 }
 
-#login_content , #reciever{
+.dialog_content{
   padding: 20px 10px;
 }
 
@@ -92,7 +92,7 @@ body {
   background: -moz-linear-gradient(top, #4D90FE, #4787ED);
   background: -ms-linear-gradient(top, #4D90FE, #4787ED);
   border: 1px solid #3079ED;
-  border-radius: 3px;
+  border-radius: 5px 5px 40px 5px;
   width: 100%;
   height: 120px;
   margin-bottom: 8px;

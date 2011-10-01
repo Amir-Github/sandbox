@@ -22,7 +22,7 @@ script
       }
            
       // socket.io specific code
-      var socket = io.connect('localhost' , {port:3000});
+      var socket = io.connect("localhost" , {port:3000});
 
       socket.on('connect', function () {
         //////
@@ -41,16 +41,10 @@ script
       });
 
       socket.on('got_msg' , function(msg , sender){
-           if(confirm("You have recieved a message from "+sender+", wanna listen to it!?")){
-             msg = msg.toUpperCase();
-             var chars = [];
-             for(var i=0;i<msg.length;i++){
-               chars.push(msg.charCodeAt(i));
-             }
-             chars.reverse();
-             for(var i=0;i<chars.length;i++){
-              setTimeout(function(){ play(map_char(chars.pop()));},200*i);
-             }
+           var args = msg.split("_from_");
+           if(confirm("You have recieved a message from "+args[1]+", wanna listen to it!?")){
+             $("#chatbox").val(args[0]);
+             play_all(args[0]); 
            }    
       });
       
@@ -62,42 +56,133 @@ script
         current_notes.push({note: note , counter: 3}); 
       }
       
+      function play_all(msg){
+         msg = msg.toUpperCase();
+         var chars = [];
+         for(var i=0;i<msg.length;i++){
+           chars.push(msg.charCodeAt(i));
+         }
+         chars.reverse();
+         for(var i=0;i<chars.length;i++){
+           setTimeout(function(){ play(map_char(chars.pop()));},200*i);
+         } 
+      }
+      
+      function show_dialog(which){
+        $("#login_content").hide();
+        
+        if(which == "sending"){
+         $("#saving").hide();
+         $("#fetching").hide();
+         $("#reciever").show();
+        }
+        else if(which == "saving"){
+         $("#reciever").hide();
+         $("#fetching").hide();
+         $("#saving").show();
+        }
+        else if(which == "fetching"){
+         $("#reciever").hide();
+         $("#saving").hide();
+         $("#fetching").show();
+        }
+       $("#osx-modal-content").modal({
+          overlayId: 'osx-overlay',
+          containerId: 'osx-container',
+          closeHTML: null,
+          minHeight: 80,
+          opacity: 65,
+          position: ['0',],
+          overlayClose: true
+        }); 
+      }
+      
+      function initialize_menu_listeners(){
+         
+         $("#send_msg").click(function(){
+           if($("#chatbox").val().length == 0){
+            alert("No empty messages please!");
+            return;
+           } 
+           show_dialog("sending");
+         });
+         
+         $("#save_msg").click(function(){
+           if($("#chatbox").val().length == 0){
+            alert("No empty messages please!");
+            return;
+           } 
+           show_dialog("saving");
+         });
+         
+         $("#fetch_msg").click(function(){
+           show_dialog("fetching");
+         });
+      }
+      
+      function initialize_dialog_listeners(){
+         ///////// login button
+         $("#login").click(function(){
+             socket.emit("login" , $("#nickname").val()+"_with_"+$("#password").val() , function(result , response) { 
+                                                                                          if(result){ 
+                                                                                            $.modal.close();
+                                                                                            if(response == 1)
+                                                                                             alert("Welcome to my wacky experimental project. Hope you enjoy it :)");
+                                                                                            else if(response == 2)
+                                                                                             alert("Welcome Back");
+                                                                                          }else{
+                                                                                            alert(response);  
+                                                                                          } 
+                                                                                         }
+                        ); 
+          });
+          //////////////////////send message
+          $("#do_send").click(function(){
+            var reciever = $("#dest_name").val().substring(0,100);//////////maximum lenght is 100 chars
+            if(reciever.length > 0)
+              socket.emit("send_msg" , $("#chatbox").val()+"_to_"+reciever , function(result){
+                                                                               if(result) 
+                                                                                 $.modal.close(); 
+                                                                               else alert("no user with this nickname is online at the moment!");
+                                                                              }
+                         );
+          });
+          ////////////////////save message
+          $("#do_save").click(function(){
+            var msg_name = $("#msg_name").val();
+            if(msg_name.length == 0) { alert("Non-empty name please."); return; } 
+            socket.emit("save_msg" , msg_name+"_-|-_"+$("#chatbox").val()+"_-|-_someone" , function(result , response){ $.modal.close(); alert(response);}); 
+          }); 
+          /////////////////////fetch message     
+          $("#do_fetch").click(function(){
+            var msg_name = $("#which_msg").val();
+            if(msg_name.length == 0) { alert("Non-empty name please."); return; } 
+            socket.emit("fetch_msg" , msg_name , function(result , response){
+                                                     if(result){
+                                                      $.modal.close();
+                                                      $("#chatbox").val(response);
+                                                      play_all(response);  
+                                                     }
+                                                     else{
+                                                      alert(response);
+                                                     }
+                                                  }
+                       ); 
+          }); 
+      }
       
       $(function () {  
           
           $('#chatbox').keydown(function(event){ 
             play(map_char(event.keyCode));
           });
-          
-          $("#login").click(function(){
-            socket.emit("login" , $("#nickname").val() , function(result , id) { if(result) $.modal.close();}); 
-          });
-          
-          $("#do_send").click(function(){
-            var reciever = $("#dest_name").val();
-            if(reciever.length > 0)
-              socket.emit("send_msg" , $("#chatbox").val()+"_to_"+reciever , function(result){if(result) $.modal.close(); else alert("no such user!");});
-          });
-          
-          $("#send_msg").click(function(){
-            if($("#chatbox").val().length == 0){
-             alert("No empty message please!");
-             return;
-            } 
-            $("#login_content").hide();
-            $("#reciever").show();
-            $("#osx-modal-content").modal({
-              overlayId: 'osx-overlay',
-              containerId: 'osx-container',
-              closeHTML: null,
-              minHeight: 80,
-              opacity: 65,
-              position: ['0',],
-              overlayClose: true
-            });
-          });
+         
+          initialize_menu_listeners();
+          initialize_dialog_listeners(); 
           
           $("#reciever").hide();
+          $("#saving").hide();
+          $("#fetching").hide();
           $("#osx-modal-content").modal({
            overlayId: 'osx-overlay',
            containerId: 'osx-container',
@@ -107,7 +192,10 @@ script
            position: ['0',],
            overlayClose: false
           });
-          
+         
+          $("#nickname").focus();
+         $("#nickname,#password").focus(function(){$(this).val("").css("color" , "#343434");});
+         ////////////////////handle animations on the canvas
          setInterval(draw,500); 
       });
       
@@ -157,17 +245,27 @@ script
   .button
     button#save_msg.big_button Save the message
   .button
-    button#play_msg.big_button Play an archived message
+    button#fetch_msg.big_button Play an archived message
     
 
 #osx-modal-content
  #osx-modal-title Chatusic
- #login_content
-  input#nickname(type='input')
-  button#login login
- #reciever
+ #login_content.dialog_content
+  input#nickname(type='input' , value='Username' , style='color:#9a9a9a')
+  input#password(type='input' , value='Password' , style='color:#9a9a9a')
+  button#login Login/Sign up
+ #reciever.dialog_content
+  label Send to : 
   input#dest_name(type='input')
-  button#do_send Send   
+  button#do_send Send
+ #saving.dialog_content
+  label Save as : 
+  input#msg_name(type='input')
+  button#do_save Save
+ #fetching.dialog_content
+  label Message name : 
+  input#which_msg(type='input')
+  button#do_fetch Play         
 
        
     
