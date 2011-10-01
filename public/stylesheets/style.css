@@ -1,4 +1,5 @@
 body {
+  background-color:#EFEFEF;
   padding: 0px;
   margin:0px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
@@ -8,9 +9,9 @@ body {
    background: url('/images/cotton.jpg') repeat;
    width: 90%;
    margin:auto auto;
-   margin-top:20px;
+   margin-top:70px;
    border-radius: 7px;
-   border: 1px solid #EFEFEF;
+   border: 1px solid #CDCDCD;
    box-shadow: 7px 7px 5px #AAA; 
 }
 
