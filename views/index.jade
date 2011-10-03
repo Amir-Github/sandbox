@@ -123,7 +123,13 @@ script
       function initialize_dialog_listeners(){
          ///////// login button
          $("#login").click(function(){
-             socket.emit("login" , $("#nickname").val()+"_with_"+$("#password").val() , function(result , response) { 
+             var nick = $.trim($("#nickname").val());
+             var pass = $.trim($("#password").val());
+             if(nick.length == 0 || pass.length == 0){
+               alert("Neither Nickname nor Password can be an empty string.");
+               return;
+             }
+             socket.emit("login" ,nick+"_with_"+pass , function(result , response) { 
                                                                                           if(result){ 
                                                                                             $.modal.close();
                                                                                             if(response == 1)
